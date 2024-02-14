@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { prisma } from '../../lib/prisma'
 import { FastifyInstance } from 'fastify'
+import { generateSimpleRandomString } from '../../utils/external-id'
 
 export async function createPoll(app: FastifyInstance) {
   app.post('/polls', async (request, reply) => {
@@ -11,9 +12,24 @@ export async function createPoll(app: FastifyInstance) {
 
     const { title, options } = createPollBody.parse(request.body)
 
+    if (options.length < 2) {
+      return reply.status(400).send({ message: 'Poll must have at least two options' })
+    }
+
+    let id = generateSimpleRandomString()
+    let canCreate = false
+
+    while (!canCreate) {
+      canCreate = !(await prisma.poll.findFirst({ where: { id } }))
+      if (!canCreate) {
+        id = generateSimpleRandomString()
+      }
+    }
+
     try {
       const poll = await prisma.poll.create({
         data: {
+          id,
           title,
           options: {
             createMany: {
