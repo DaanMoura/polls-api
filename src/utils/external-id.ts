@@ -9,3 +9,5 @@ export function generateSimpleRandomString(): string {
 
   return randomString
 }
+
+export const randomStringRegex = /^[a-zA-Z0-9]{6}$/

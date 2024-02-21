@@ -2,11 +2,12 @@ import { FastifyInstance } from 'fastify'
 import { z } from 'zod'
 import { prisma } from '../../lib/prisma'
 import { redis } from '../../lib/redis'
+import { randomStringRegex } from '../../utils/external-id'
 
 export async function getPoll(app: FastifyInstance) {
   app.get('/polls/:pollId', async (request, reply) => {
     const getPollParams = z.object({
-      pollId: z.string().uuid()
+      pollId: z.string().regex(randomStringRegex)
     })
 
     const { pollId } = getPollParams.parse(request.params)

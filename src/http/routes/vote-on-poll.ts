@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { prisma } from '../../lib/prisma'
 import { redis } from '../../lib/redis'
 import { voting } from '../../utils/voting-pub-sub'
+import { randomStringRegex } from '../../utils/external-id'
 
 export async function voteOnPoll(app: FastifyInstance) {
   app.post('/polls/:pollId/votes', async (request, reply) => {
@@ -12,7 +13,7 @@ export async function voteOnPoll(app: FastifyInstance) {
     })
 
     const voteOnPollParams = z.object({
-      pollId: z.string().uuid()
+      pollId: z.string().regex(randomStringRegex)
     })
 
     const { pollOptionId } = voteOnPollBody.parse(request.body)
